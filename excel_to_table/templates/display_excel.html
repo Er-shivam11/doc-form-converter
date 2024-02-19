@@ -1,0 +1,126 @@
+{%load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/fontawesome.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <title>Excel Reader</title>
+    
+
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        td.editable {
+            background-color: #eaf4ff; /* Background color for editable cells */
+        }
+    </style>
+    
+</head>
+<body>
+    {% include "header.html" %}
+    <h1>Excel Data</h1>
+    <button onclick="saveChanges()">Save Changes</button>
+
+    <table>
+        <tr>
+            {% for column in data.columns %}
+            <th>{{ column }}</th>
+            {% endfor %}
+        </tr>
+        {% for row in data.values %}
+        <tr>
+            {% for cell in row %}
+            <td class="editable" onclick="makeEditable(this)" contenteditable="true" oninput="checkInput(this)">{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    
+    
+    <button onclick="saveChanges()">Save Changes</button>
+    <script>
+        function checkInput(cell) {
+        const value = parseFloat(cell.textContent);
+        if (!isNaN(value)) {
+            if (value <= 60 && 50<=value  ) {
+                cell.style.backgroundColor = 'green';
+            } else {
+                cell.style.backgroundColor = 'red';
+            }
+        }
+    }
+
+    function makeEditable(cell) {
+        cell.setAttribute('contenteditable', true);
+        cell.classList.add('editable');
+        cell.focus();
+    }
+
+        function saveChanges() {
+    const rows = document.querySelectorAll('table tbody tr');
+    const data = [];
+    rows.forEach(row => {
+        const rowData = [];
+        row.querySelectorAll('td').forEach(cell => {
+            rowData.push(cell.textContent);
+        });
+        data.push(rowData);
+    });
+
+    // Send the 'data' array to your Django view using AJAX.
+    const jsonData = JSON.stringify(data);
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", '/save-data/', true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    xhr.onload = function() {
+        // Handle the response from the Django view.
+        if (xhr.status === 200) {
+            console.log('Data saved successfully.');
+        }
+    };
+    xhr.send(jsonData);
+}
+
+        
+
+        function saveChanges() {
+            const rows = document.querySelectorAll('table tbody tr');
+            const data = [];
+            rows.forEach(row => {
+                const rowData = [];
+                row.querySelectorAll('td').forEach(cell => {
+                    rowData.push(cell.textContent);
+                });
+                data.push(rowData);
+            });
+
+            // You can now send the 'data' array to your Django view to save it to the database.
+        }
+        
+    </script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.js' %}"></script>
+    <script src="{% static 'js/fontawesome.js' %}"></script>
+    <script src="{% static 'js/custom.js' %}"></script>
+</body>
+</html>

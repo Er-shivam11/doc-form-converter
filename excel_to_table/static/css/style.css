@@ -1,0 +1,181 @@
+* {
+    box-sizing: border-box !important;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+h1 {
+    font-size: 24px;
+    font-family: 'Baloo Chettan', cursive;
+}
+
+h2 {
+    font-size: 22px;
+    font-family: 'Baloo Chettan', cursive;
+}
+
+h3 {
+    font-size: 18px;
+    font-family: 'Baloo Chettan', cursive;
+}
+
+h4 {
+    font-size: 16px
+}
+
+h5 {
+    font-size: 14px
+}
+h6 {
+    font-size: 13px
+}
+.center-text {
+    text-align: center;
+  }
+
+  
+
+  
+  
+*,
+*::after,
+*::before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+h1 a,
+h2 a,
+h3 a,
+h4 a,
+h5 a,
+h6 a {
+    color: #212121;
+    text-decoration: none!important;
+    opacity: 1;
+    text-align: center;
+}
+.text-bg{
+    padding: 5%;
+    margin: 20%;
+    text-align: center;
+    font-size: 36px;
+    color: #fff; /* Set your desired text color */
+    animation: slide-in 2s ease-in-out;
+}
+
+
+
+
+
+
+  
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+.excel-template{
+    padding: 25%;
+}
+
+.text-bg a {
+    font-size: 17px;
+    background-color: #fff;
+    color: #0891f8;
+    padding: 13px 0;
+    width: 100%;
+    max-width: 190px;
+    text-align: center;
+    display: inline-block;
+    transition: ease-in all .5s;
+    border-radius: 10px;
+}
+.btn, a {
+    text-decoration: none!important;
+    outline: 0!important;
+    transition: all .3s ease-in-out;
+    text-align: center;
+}
+
+button:focus {
+    outline: none;
+    text-align: center;
+}
+
+ul,
+li,
+ol {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+
+p {
+    margin: 0px;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 24px;
+}
+
+a {
+    color: #222222;
+    text-decoration: none;
+    outline: none !important;
+    text-align: center;
+}
+
+a,
+.btn {
+    text-decoration: none !important;
+    outline: none !important;
+    -webkit-transition: all .3s ease-in-out;
+    -moz-transition: all .3s ease-in-out;
+    -ms-transition: all .3s ease-in-out;
+    -o-transition: all .3s ease-in-out;
+    transition: all .3s ease-in-out;
+    text-align: center; 
+}
+
+body {
+    background: linear-gradient(to bottom, #3341ff, #000000);
+    font-size: 14px;
+    font-family: 'Lato', sans-serif;
+    line-height: 1.80857;
+    font-weight: normal;
+}
+
+
+.head_top {
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+}   
+
+.text-bg h1 {
+    color: #fff;
+    font-size: 48px;
+    line-height: 65px;
+    font-weight: 700;
+}
+
+
+.banner_main {
+    padding: 90px 0 190px 0;
+}
+
+
+.text-img{
+    padding: 3re;
+    margin: 200px;
+    height:150%;
+    width:150%;
+}
