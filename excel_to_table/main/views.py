@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 # Create your views here.
-from django.shortcuts import render
+from django.shortcuts import render,HttpResponse
 import pandas as pd
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -117,21 +117,37 @@ def typeform(request):
         form = UserPermissionForm(request.POST, request.FILES)
         if form.is_valid():
             upload_template_instance = form.save()
-            template_master = upload_template_instance.template_master.worksheet_file
-
+            template_master = upload_template_instance.template_master.worksheet_file.path
+            print(template_master)
+            if template_master.endswith('.xlsx'):
             # Parse the Excel file using Pandas
-            df = pd.read_excel(template_master)
-            df.fillna('', inplace=True)
-            df.columns = ["" if 'Unnamed' in str(col) else col for col in df.columns]
-            columns = df.columns.tolist()
-            df = df[(df.T != '').any()]
-            data = df.values.tolist()
+                df = pd.read_excel(template_master)
+                df.fillna('', inplace=True)
+                df.columns = ["" if 'Unnamed' in str(col) else col for col in df.columns]
+                columns = df.columns.tolist()
+                df = df[(df.T != '').any()]
+                data = df.values.tolist()
 
-            # print(data)
-            data_json = json.dumps(data)
-            # print(data_json)
-
-            return render(request, 'your_template.html', {'form': form, 'columns': columns, 'data': data})
+                # print(data)
+                data_json = json.dumps(data)
+                # print(data_json)
+                return render(request, 'your_template.html', {'form': form, 'columns': columns, 'data': data})
+            elif template_master.endswith('.docx'):
+                # Parse the Word document using python-docx
+                doc = Document(template_master)
+                tables_data = []
+                columns=None
+                # Extract data from each table
+                for table in doc.tables:
+                    table_data = []
+                    for row in table.rows:
+                        row_data = [cell.text for cell in row.cells]
+                        table_data.append(row_data)
+                    tables_data.append(table_data)
+                return render(request, 'your_template.html', {'form': form, 'columns': columns, 'tables_data': tables_data})
+                
+            else:
+                return HttpResponse("Unsupported file type")
 
     else:
         form = UserPermissionForm()
