@@ -1,40 +1,49 @@
-{%load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
-    <link rel="stylesheet" href="{% static 'css/fontawesome.css' %}">
-    <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
-    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
-    <title>Excel Reader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
-    <body>
-        {% include "header.html" %}
-        <h6>part 1 = simple reading</h6>
+<body>
+    <h2>Paragraphs:</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Year</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for paragraph in combined_data.paragraphs %}
+            <tr>
+                <td>{{ paragraph.Month }}</td>
+                <td>{{ paragraph.Year }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        {{tables_data}}
-<h6>part 2 = converting into table</h6>
-        {% for table_data in tables_data %}
-        <div class="table-responsive">
-            <table class="table">
-                {% for row in table_data %}
-                    <tr>
-                        {% for cell in row %}
-                        <td class="editable" onclick="makeEditable(this)" contenteditable="true" oninput="checkInput(this)">{{ cell }}</td>
-                        {% endfor %}
-                    </tr>
+    <h2>Tables:</h2>
+    {% for table in combined_data.tables %}
+    <table border="1">
+        <thead>
+            <tr>
+                {% for header in table.Rows.0 %}
+                <th>{{ header }}</th>
                 {% endfor %}
-            </table>        
-        </div>
-        {% endfor %}
-        
-
-
-        
-    </body>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table.Rows.1 %}
+            <tr>
+                {% for cell in row %}
+                <td>{{ cell }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+</body>
 </html>
-        
-

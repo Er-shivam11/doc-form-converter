@@ -136,13 +136,29 @@ def typeform(request):
                 # Parse the Word document using python-docx
                 doc = Document(template_master)
                 tables_data = []
-                columns=None
+                columns = None
                 # Extract data from each table
                 for table in doc.tables:
                     table_data = []
-                    for row in table.rows:
-                        row_data = [cell.text for cell in row.cells]
+                    unique_values = set()  # Track unique values across top 3 rows
+                    # Counter for appending "row" labels
+                    row_counter = 1
+                    for i, row in enumerate(table.rows):
+                        row_data = []
+                        for j, cell in enumerate(row.cells):
+                            cell_text = cell.text.strip()  # Strip whitespace from cell text
+                            # Check if it's the header row
+                            if i < 3:
+                                # Check for duplicate values in top 3 rows
+                                if cell_text in unique_values:
+                                    cell_text = ""  # Fill null value if duplicate
+                                else:
+                                    unique_values.add(cell_text)
+                            row_data.append(cell_text)
                         table_data.append(row_data)
+                        # Print the row label
+                        print(f"row{row_counter}", row_data)
+                        row_counter += 1
                     tables_data.append(table_data)
                 return render(request, 'your_template.html', {'form': form, 'columns': columns, 'tables_data': tables_data})
                 
