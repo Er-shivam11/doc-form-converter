@@ -156,14 +156,34 @@ def typeform(request):
                                     unique_values.add(cell_text)
                             row_data.append(cell_text)
                         table_data.append(row_data)
+                        # Update row 3 to include 'M6(F6)/F9' at the end
+
+                        
+                        if i == 2 and '20 µ' in row_data and 'G4' in row_data:
+                            row_data[-1] = 'M6(F6)/F9'
+                            row_data[-2] = 'G4'
+                            row_data[-3] = '20 µ'
+                        if i == 3 and '20 µ' in row_data or 'G4' in row_data:
+                            row_data[0]=""
+                            row_data[1]=""
+                            # row_data[1]=""
+                            # row_data[1]=""
+
                         # Print the row label
                         print(f"row{row_counter}", row_data)
                         row_counter += 1
                     tables_data.append(table_data)
+
+
+
+
+
+
                 return render(request, 'your_template.html', {'form': form, 'columns': columns, 'tables_data': tables_data})
                 
             else:
-                return HttpResponse("Unsupported file type")
+                message = "Unsupported File Content, Unsupported File Structure or format, file is not found"
+                return HttpResponse(f'<div class="error-message">{message}</div>')
 
     else:
         form = UserPermissionForm()

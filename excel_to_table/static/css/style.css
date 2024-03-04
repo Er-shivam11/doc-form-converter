@@ -179,3 +179,10 @@ body {
     height:150%;
     width:150%;
 }
+.error-message {
+    color: red; /* Set color to red */
+    text-align: center; /* Center align text */
+    font-size: 18px; /* Set font size */
+    margin-top: 50vh; /* Vertically center the message */
+    transform: translateY(-50%); /* Adjust for vertical centering */
+}

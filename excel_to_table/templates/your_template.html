@@ -45,20 +45,22 @@
                 </table>
             </div>
             {% endif %}
-            <h3>Uploaded Word Document Data:</h3>
+            {% if tables_data %}
+                <h3>Uploaded Word Document Data:</h3>
+                {% for table_data in tables_data %}
+                <div class="table-responsive">
+                    <table class="table">
+                        {% for row in table_data %}
+                            <tr>
+                                {% for cell in row %}
+                                <td class="editable" onclick="makeEditable(this)" contenteditable="true" oninput="checkInput(this)">{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>        
+                </div>
+                {% endfor %}
+            {% endif %}
 
-            {% for table_data in tables_data %}
-            <div class="table-responsive">
-                <table class="table">
-                    {% for row in table_data %}
-                        <tr>
-                            {% for cell in row %}
-                            <td class="editable" onclick="makeEditable(this)" contenteditable="true" oninput="checkInput(this)">{{ cell }}</td>
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </table>        
-            </div>
-            {% endfor %}
         
 
