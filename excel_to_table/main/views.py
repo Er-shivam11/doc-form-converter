@@ -1,44 +1,22 @@
-from django.shortcuts import render
-
 # Create your views here.
 from django.shortcuts import render,HttpResponse
 import pandas as pd
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
-import pandas as pd
 from .forms import UploadWorkSheetForm,UserPermissionForm,TemplateForm
-import os
-import pandas as pd
-import pandas as pd
 from .models import TemplateDetail,UploadTemplate
 import numpy as np
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login as auth_login, authenticate
 from django.contrib import messages
-from django.shortcuts import render, redirect
 import pandas as pd
 import json
 from docx import Document
 import docx
 import pdfplumber
 import sys
-from docx import Document
-from django.shortcuts import render
 from django.http import JsonResponse
-import pandas as pd
-import json
-from docx import Document
-import pdfplumber
-from django.shortcuts import render
-from django.http import JsonResponse
-
-import pandas as pd
-import json
-from docx import Document
-import pdfplumber
 from django.shortcuts import render, redirect
-import docx2txt
 
 
 def loginuser(request):
@@ -111,7 +89,14 @@ def selecttemplate(request):
         'tform': tform}
     return render(request, 'selecttemp.html', context)
 
-
+# def extract_text_from_table(table):
+#     table_data = []
+#     for row in table.rows:
+#         row_data = []
+#         for cell in row.cells:
+#             row_data.append(cell.text)
+#         table_data.append(row_data)
+#     return table_data
 def typeform(request):
     if request.method == 'POST':
         form = UserPermissionForm(request.POST, request.FILES)
@@ -135,6 +120,19 @@ def typeform(request):
             elif template_master.endswith('.docx'):
                 # Parse the Word document using python-docx
                 doc = Document(template_master)
+                # print(doc)
+                header = doc.sections[0].header
+                headers_data = []
+                for table in header.tables:
+                    header_data = []
+                    for row in table.rows:
+                        row_data = [cell.text for cell in row.cells]
+                        unique_values = list(set(row_data))
+                        print(unique_values,'header row')
+                        header_data.append(unique_values)
+                    headers_data.append(header_data)
+                             
+                
                 tables_data = []
                 columns = None
                 # Extract data from each table
@@ -179,7 +177,7 @@ def typeform(request):
 
 
 
-                return render(request, 'your_template.html', {'form': form, 'columns': columns, 'tables_data': tables_data})
+                return render(request, 'your_template.html', {'form': form, 'headers_data': headers_data,'columns': columns, 'tables_data': tables_data})
                 
             else:
                 message = "Unsupported File Content, Unsupported File Structure or format, file is not found"
@@ -269,14 +267,7 @@ def read_and_save_to_json(uploaded_file):
         return None
 
     return json_data
-from docx import Document
-from django.shortcuts import render
 
-from docx import Document
-from django.shortcuts import render
-
-from docx import Document
-from django.shortcuts import render
 
 def wordreader(request):
     doc = Document("static/11 Planner for AHU.docx")
@@ -307,5 +298,30 @@ def wordreader(request):
 
     # Pass the extracted data to the template
     return render(request, 'word.html', {'tables_data': tables_data})
+
+import docx 
+
+def rulebased(request):
+    # Import docx NOT python-docx 
+
+# Create an instance of a word document 
+    doc = docx.Document() 
+
+    # Add a Title to the document 
+    doc.add_heading('GeeksForGeeks', 0) 
+
+    # Adding a paragraph 
+    doc.add_heading('Page 1:', 3) 
+    doc.add_paragraph('GeeksforGeeks is a Computer Science portal for geeks.') 
+
+    # Adding a page break 
+    doc.add_page_break() 
+
+    # Adding a paragraph 
+    doc.add_heading('Page 2:', 3) 
+    doc.add_paragraph('GeeksforGeeks is a Computer Science portal for geeks.') 
+
+    # Now save the document to a location 
+    doc.save('gfg.docx') 
 
 

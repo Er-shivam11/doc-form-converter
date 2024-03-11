@@ -36,5 +36,6 @@ urlpatterns = [
     path('addtemplate/', views.addtemplate, name='addtemplate'),
     path('wordreader/', views.wordreader, name='wordreader'),
     path('save-data/', views.display_excel, name='savedata'),
+    path('rulebased/', views.rulebased, name='rulebased'),
     
 ]

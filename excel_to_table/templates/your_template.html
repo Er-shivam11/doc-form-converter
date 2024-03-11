@@ -21,9 +21,25 @@
                 {{ form.as_p }}
                 <button type="submit">Upload</button>
             </form>
+            {% if headers_data %}
+                {% for table_data in headers_data %}
+                <div class="table-responsive">
+                    <table class="table">
+                        {% for row in table_data %}
+                            
+                            <tr>
+                                {% for cell in row %}
+                                <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>        
+                </div>
+                {% endfor %}
+            {% endif %}
 
+            <!-- excel type -->
             {% if columns and data %}
-            <h3>Uploaded Excel Data:</h3>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -45,8 +61,8 @@
                 </table>
             </div>
             {% endif %}
+            <!-- word type -->
             {% if tables_data %}
-                <h3>Uploaded Word Document Data:</h3>
                 {% for table_data in tables_data %}
                 <div class="table-responsive">
                     <table class="table">
@@ -64,3 +80,4 @@
 
         
 
+            
