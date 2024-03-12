@@ -131,6 +131,7 @@ def typeform(request):
                         print(unique_values,'header row')
                         header_data.append(unique_values)
                     headers_data.append(header_data)
+                
                              
                 
                 tables_data = []
@@ -156,7 +157,19 @@ def typeform(request):
                         table_data.append(row_data)
                         # Update row 3 to include 'M6(F6)/F9' at the end
 
-                        
+                       
+                        #  to format table
+                        # first_column_empty = all(not row[0] for row in table_data)
+                        # second_column_empty = all(not row[1] for row in table_data)
+
+                        # # If both the first and second columns are empty for all rows, skip them
+                        # if first_column_empty and second_column_empty:
+                        #     for row in table_data:
+                        #         del row[:2]
+
+                        # # Print the transformed table
+                        # for row in table_data:
+                        #     print(row)
                         if i == 2 and '20 µ' in row_data and 'G4' in row_data:
                             row_data[-1] = 'M6(F6)/F9'
                             row_data[-2] = 'G4'
@@ -168,14 +181,23 @@ def typeform(request):
                             # row_data[1]=""
 
                         # Print the row label
-                        print(f"row{row_counter}", row_data)
+                        # print(f"row{row_counter}", row_data)
                         row_counter += 1
                     tables_data.append(table_data)
 
 
 
 
-
+            # footer = doc.sections[0].header
+                # footers_data = []
+                # for table in footer.tables:
+                #     footer_data = []
+                #     for row in table.rows:
+                #         row_data = [cell.text for cell in row.cells]
+                #         unique_values = list(set(row_data))
+                #         print(unique_values,'footer row')
+                #         footer_data.append(unique_values)
+                #     footers_data.append(footer_data)
 
                 return render(request, 'your_template.html', {'form': form, 'headers_data': headers_data,'columns': columns, 'tables_data': tables_data})
                 

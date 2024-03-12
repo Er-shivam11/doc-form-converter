@@ -9,7 +9,12 @@
     <link rel="stylesheet" href="{% static 'css/fontawesome.css' %}">
     <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
-    <title>Excel Reader</title>
+    <title>Doc Reader</title>
+    <style>
+        /* .table-bordered {
+    border: 1px solid #0b7beb;
+} */
+    </style>
 </head>
     <body>
         <header>
@@ -21,15 +26,16 @@
                 {{ form.as_p }}
                 <button type="submit">Upload</button>
             </form>
+            <!-- rules will be non editable field for headers -->
             {% if headers_data %}
                 {% for table_data in headers_data %}
-                <div class="table-responsive">
+                <div class="table-responsive ">
                     <table class="table">
                         {% for row in table_data %}
                             
                             <tr>
                                 {% for cell in row %}
-                                <td>{{ cell }}</td>
+                                <th>{{ cell }}</th>
                                 {% endfor %}
                             </tr>
                         {% endfor %}
@@ -38,9 +44,9 @@
                 {% endfor %}
             {% endif %}
 
-            <!-- excel type -->
+            <!-- rule excel type editable -->
             {% if columns and data %}
-            <div class="table-responsive">
+            <div class="table-responsive ">
                 <table class="table">
                     <thead>
                         <tr>
@@ -61,22 +67,30 @@
                 </table>
             </div>
             {% endif %}
-            <!-- word type -->
+            <!-- rule word type editable -->
             {% if tables_data %}
-                {% for table_data in tables_data %}
-                <div class="table-responsive">
-                    <table class="table">
-                        {% for row in table_data %}
-                            <tr>
-                                {% for cell in row %}
-                                <td class="editable" onclick="makeEditable(this)" contenteditable="true" oninput="checkInput(this)">{{ cell }}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </table>        
-                </div>
-                {% endfor %}
-            {% endif %}
+            {% for table_data in tables_data %}
+            <div class="table-responsive table-bordered">
+                <table class="table ">
+                    {% for row in table_data %}
+                        <tr>
+                            {% for cell in row %}
+                                {% if forloop.counter == 2 %}
+                                    <td class="editable" onclick="makeEditable(this)" contenteditable="true" oninput="checkInput(this)" colspan="2">{{ cell }}</td>
+                                {% else %}
+                                    <td class="editable" onclick="makeEditable(this)" contenteditable="true" oninput="checkInput(this)">{{ cell }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>        
+            </div>
+            {% endfor %}
+        {% endif %}
+        
+        
+
+            
 
         
 
