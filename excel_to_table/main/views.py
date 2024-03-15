@@ -18,7 +18,7 @@ import sys
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-
+from .models import TemplateData,FormData
 def loginuser(request):
     if request.method == 'POST':
         form = AuthenticationForm(request.POST)
@@ -118,6 +118,8 @@ def typeform(request):
                 # print(data_json)
                 return render(request, 'your_template.html', {'form': form, 'columns': columns, 'data': data})
             elif template_master.endswith('.docx'):
+                t_id = upload_template_instance.template_master.id
+                print(t_id)
                 # Parse the Word document using python-docx
                 doc = Document(template_master)
                 # print(doc)
@@ -129,6 +131,8 @@ def typeform(request):
                         row_data = [cell.text for cell in row.cells]
                         unique_values = list(set(row_data))
                         print(unique_values,'header row')
+                        template_form_instance = FormData(form_data=unique_values,template_master_id=t_id)
+                        template_form_instance.save()
                         header_data.append(unique_values)
                     headers_data.append(header_data)
                 
@@ -181,9 +185,13 @@ def typeform(request):
                             # row_data[1]=""
 
                         # Print the row label
-                        # print(f"row{row_counter}", row_data)
+                        print(f"row{row_counter}", row_data)
+                        template_form_instance = FormData(form_data=row_data,template_master_id=t_id)
+                        template_form_instance.save()
                         row_counter += 1
                     tables_data.append(table_data)
+
+                
 
 
 
@@ -198,7 +206,11 @@ def typeform(request):
                 #         print(unique_values,'footer row')
                 #         footer_data.append(unique_values)
                 #     footers_data.append(footer_data)
+                    
+                # template_data_instance = TemplateData(header=headers_data,content=tables_data,template_ref_id=t_id)
 
+# Save the instance to the database
+                # template_data_instance.save()
                 return render(request, 'your_template.html', {'form': form, 'headers_data': headers_data,'columns': columns, 'tables_data': tables_data})
                 
             else:
@@ -209,6 +221,22 @@ def typeform(request):
         form = UserPermissionForm()
 
     return render(request, 'your_template.html', {'form': form})
+
+
+def form_data(request):
+    # Retrieve all TemplateData objects
+    formdata = FormData.objects.all()
+    
+
+    # Prepare data for rendering in HTML table
+    table_data = []
+    for data in formdata:
+        print(data)
+
+    # Pass data into context and render HTML template
+    return render(request, 'formdata.html', {'table_data': table_data})
+
+
 
 def display_excel(request):
     pd.set_option('display.max_rows', None)

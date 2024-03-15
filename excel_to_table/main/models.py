@@ -57,4 +57,17 @@ class TemplateDetail(models.Model):
         db_table = 'tbl_templatedetail'
 
     
+
+class TemplateData(models.Model):
+    header= models.CharField(max_length=2000)
+    content= models.TextField(max_length=2000000)
+    template_ref=models.ForeignKey(UploadTemplate,verbose_name='template name', on_delete=models.SET_NULL, null=True)
     
+    class Meta:
+        db_table = 'tbl_templatedata'
+
+class FormData(models.Model):
+    form_data=models.TextField(max_length=9999999999999)
+    template_master=models.ForeignKey(UploadTemplate,verbose_name='template name', on_delete=models.SET_NULL, null=True)
+    class Meta:
+        db_table='tbl_formdata'
