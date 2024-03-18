@@ -21,11 +21,12 @@
             <!-- header inner -->
             <div  class="head_top">
             {% include "header.html" %}
-            <form method="post" enctype="multipart/form-data">
+            <h3>Form</h3>
+            <!-- <form method="post" enctype="multipart/form-data" >
                 {% csrf_token %}
                 {{ form.as_p }}
                 <button type="submit">Upload</button>
-            </form>
+            </form> -->
             <!-- rules will be non editable field for headers -->
             {% if headers_data %}
                 {% for table_data in headers_data %}

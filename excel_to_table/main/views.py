@@ -1,24 +1,27 @@
-# Create your views here.
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render, HttpResponse,redirect
 import pandas as pd
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .forms import UploadWorkSheetForm,UserPermissionForm,TemplateForm
-from .models import TemplateDetail,UploadTemplate
-import numpy as np
+from .forms import UploadWorkSheetForm, UserPermissionForm, TemplateForm,FormSheet
+from .models import UploadTemplate,UserPermission
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login as auth_login, authenticate
 from django.contrib import messages
-import pandas as pd
-import json
 from docx import Document
 import docx
 import pdfplumber
 import sys
+from .forms import UserPermissionForm, UploadWorkSheetForm
+import os
+from .models import UploadTemplate, UploadedForm
+from django.conf import settings
+from pathlib import Path
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+import json
+# Create your views here.
+from django.shortcuts import render
 
-from .models import TemplateData,FormData
+from .models import FormData,TempleData
 def loginuser(request):
     if request.method == 'POST':
         form = AuthenticationForm(request.POST)
@@ -112,17 +115,15 @@ def typeform(request):
                 columns = df.columns.tolist()
                 df = df[(df.T != '').any()]
                 data = df.values.tolist()
-
-                # print(data)
-                data_json = json.dumps(data)
-                # print(data_json)
                 return render(request, 'your_template.html', {'form': form, 'columns': columns, 'data': data})
             elif template_master.endswith('.docx'):
                 t_id = upload_template_instance.template_master.id
                 print(t_id)
+                latest_entry = UserPermission.objects.latest('id')
+                form_name = latest_entry.form_name
+                print(form_name)
                 # Parse the Word document using python-docx
                 doc = Document(template_master)
-                # print(doc)
                 header = doc.sections[0].header
                 headers_data = []
                 for table in header.tables:
@@ -130,14 +131,11 @@ def typeform(request):
                     for row in table.rows:
                         row_data = [cell.text for cell in row.cells]
                         unique_values = list(set(row_data))
-                        print(unique_values,'header row')
-                        template_form_instance = FormData(form_data=unique_values,template_master_id=t_id)
+                        # print(unique_values,'header row')
+                        template_form_instance = TempleData(temp_data=unique_values,template_master_id=t_id,form_data=form_name)
                         template_form_instance.save()
                         header_data.append(unique_values)
                     headers_data.append(header_data)
-                
-                             
-                
                 tables_data = []
                 columns = None
                 # Extract data from each table
@@ -159,21 +157,6 @@ def typeform(request):
                                     unique_values.add(cell_text)
                             row_data.append(cell_text)
                         table_data.append(row_data)
-                        # Update row 3 to include 'M6(F6)/F9' at the end
-
-                       
-                        #  to format table
-                        # first_column_empty = all(not row[0] for row in table_data)
-                        # second_column_empty = all(not row[1] for row in table_data)
-
-                        # # If both the first and second columns are empty for all rows, skip them
-                        # if first_column_empty and second_column_empty:
-                        #     for row in table_data:
-                        #         del row[:2]
-
-                        # # Print the transformed table
-                        # for row in table_data:
-                        #     print(row)
                         if i == 2 and '20 µ' in row_data and 'G4' in row_data:
                             row_data[-1] = 'M6(F6)/F9'
                             row_data[-2] = 'G4'
@@ -181,22 +164,82 @@ def typeform(request):
                         if i == 3 and '20 µ' in row_data or 'G4' in row_data:
                             row_data[0]=""
                             row_data[1]=""
-                            # row_data[1]=""
-                            # row_data[1]=""
-
                         # Print the row label
-                        print(f"row{row_counter}", row_data)
-                        template_form_instance = FormData(form_data=row_data,template_master_id=t_id)
+                        # print(f"row{row_counter}", row_data)
+                        template_form_instance = TempleData(temp_data=row_data,template_master_id=t_id,form_data=form_name)
                         template_form_instance.save()
                         row_counter += 1
                     tables_data.append(table_data)
+                    # print(tables_data)
 
+                return render(request, 'your_template.html', {'form': form, 'headers_data': headers_data,'columns': columns, 'tables_data': tables_data})
                 
+            else:
+                message = "Unsupported File Content, Unsupported File Structure or format, file is not found"
+                return HttpResponse(f'<div class="error-message">{message}</div>')
+
+    else:
+        form = UserPermissionForm()
+
+    return render(request, 'your_template.html', {'form': form})
 
 
 
 
-            # footer = doc.sections[0].header
+def formuploaded(request):
+    tform=FormSheet
+    if request.method == 'POST':
+        count_form = FormSheet(request.POST, request.FILES)
+        if count_form.is_valid():   
+            count_form.save()
+            return redirect('editform')
+        else:
+            print(count_form.errors)
+    else:
+        count_form = FormSheet()
+    context = {
+        'tform': tform} 
+    return render(request, 'addform.html', context)
+
+def editform(request):
+    # Retrieve the latest template_master_id
+    latest_entry = UserPermission.objects.latest('id')
+    form_name = latest_entry.form_name
+    print(form_name)
+
+    latest_template_master_id = latest_entry.template_master_id
+    # Retrieve FormData objects for the latest template_master_id
+    formdata = TempleData.objects.filter(template_master_id=latest_template_master_id,form_data=form_name)
+
+
+    print(formdata)
+    # Convert FormData objects to DataFrame
+    rows = []
+    for data in formdata:
+        rows.append(eval(data.temp_data))
+    # Create DataFrame
+    df = pd.DataFrame(rows)
+    # Assign headers
+    headers = df.iloc[0]
+    df = df[1:]
+    df.columns = headers
+    print(df)
+
+    return render(request, 'formdata.html', {'df': df})
+    # df = pd.DataFrame(rows)
+    
+    # df['form_data'] = df['form_data'].apply(lambda x: x.replace('[', '').replace(']', '').replace(',', ''))
+    
+
+# Printing header and content
+  
+    # html_table = df.to_html(index=False)
+
+    # Pass the HTML table to the template context
+    
+
+
+# footer = doc.sections[0].header
                 # footers_data = []
                 # for table in footer.tables:
                 #     footer_data = []
@@ -211,125 +254,98 @@ def typeform(request):
 
 # Save the instance to the database
                 # template_data_instance.save()
-                return render(request, 'your_template.html', {'form': form, 'headers_data': headers_data,'columns': columns, 'tables_data': tables_data})
-                
-            else:
-                message = "Unsupported File Content, Unsupported File Structure or format, file is not found"
-                return HttpResponse(f'<div class="error-message">{message}</div>')
+# def display_excel(request):
+#     pd.set_option('display.max_rows', None)
+#     pd.set_option('display.max_columns', None)
+#     excel_path = "static/ex.xlsx"  # Path to your Excel file
 
-    else:
-        form = UserPermissionForm()
+#     data = pd.read_excel(excel_path)
+#     data = data.iloc[:, :-2]
+#     data = data.loc[:, ~data.columns.str.startswith('Unnamed')]
+#     data = data.drop(0)
 
-    return render(request, 'your_template.html', {'form': form})
 
+#     data = data.rename(columns={
+#         'Step': 'description',
+#         'Actual Readings': 'actual_readings',
+#         'Start Time': 'start_time',
+#         'End Time (hour)': 'end_time'
+#     })
+#     print(data)
 
-def form_data(request):
-    # Retrieve all TemplateData objects
-    formdata = FormData.objects.all()
+#     rm_col = ['Step No.', 'description', 'actual_readings', 'Unnamed: 3', 'Unnamed: 4', 'start_time', 'Unnamed: 6', 'end_time']
+#     sorted_data = [col for col in rm_col if not col.startswith('Unnamed')]
     
-
-    # Prepare data for rendering in HTML table
-    table_data = []
-    for data in formdata:
-        print(data)
-
-    # Pass data into context and render HTML template
-    return render(request, 'formdata.html', {'table_data': table_data})
+#     print(sorted_data)
 
 
 
-def display_excel(request):
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
-    excel_path = "static/ex.xlsx"  # Path to your Excel file
-
-    data = pd.read_excel(excel_path)
-    data = data.iloc[:, :-2]
-    data = data.loc[:, ~data.columns.str.startswith('Unnamed')]
-    data = data.drop(0)
-
-
-    data = data.rename(columns={
-        'Step': 'description',
-        'Actual Readings': 'actual_readings',
-        'Start Time': 'start_time',
-        'End Time (hour)': 'end_time'
-    })
-    print(data)
-
-    rm_col = ['Step No.', 'description', 'actual_readings', 'Unnamed: 3', 'Unnamed: 4', 'start_time', 'Unnamed: 6', 'end_time']
-    sorted_data = [col for col in rm_col if not col.startswith('Unnamed')]
-    
-    print(sorted_data)
-
-
-
-    for index, row in data.iterrows():
-        step=1
-        description = "Transfer about 50 to 60 L purified water in Tank ID TLI2M20"
-        std_value = "50-60 L"
-        obs_value = "0"
-        start_time="0"
-        end_time = "0"
+#     for index, row in data.iterrows():
+#         step=1
+#         description = "Transfer about 50 to 60 L purified water in Tank ID TLI2M20"
+#         std_value = "50-60 L"
+#         obs_value = "0"
+#         start_time="0"
+#         end_time = "0"
         
 
-        TemplateDetail.objects.create(
-            step=step,
-            description=description,
-            std_value=std_value,
-            obs_value=obs_value,
-            start_time=start_time,
-            end_time=end_time
-        )
+#         TemplateDetail.objects.create(
+#             step=step,
+#             description=description,
+#             std_value=std_value,
+#             obs_value=obs_value,
+#             start_time=start_time,
+#             end_time=end_time
+#         )
         
 
-    # You can also query the saved data from the database and display it on the webpage
-    saved_data = TemplateDetail.objects.all()
-    return render(request, 'display_excel.html', {'data': data})
+#     # You can also query the saved data from the database and display it on the webpage
+#     saved_data = TemplateDetail.objects.all()
+#     return render(request, 'display_excel.html', {'data': data})
     
 
 
-def read_and_save_to_json(uploaded_file):
-    """
-    Read data from Excel, PDF, or Word file and save it into a JSON format.
-    """
-    file_extension = uploaded_file.name.split('.')[-1].lower()
+# def read_and_save_to_json(uploaded_file):
+#     """
+#     Read data from Excel, PDF, or Word file and save it into a JSON format.
+#     """
+#     file_extension = uploaded_file.name.split('.')[-1].lower()
 
-    if file_extension == 'xlsx':
-        data = pd.read_excel(uploaded_file)
-        json_data = data.to_json(orient='records')
+#     if file_extension == 'xlsx':
+#         data = pd.read_excel(uploaded_file)
+#         json_data = data.to_json(orient='records')
 
-    elif file_extension == 'pdf':
-        with pdfplumber.open(uploaded_file) as pdf:
-            pages_text = []
-            for page in pdf.pages:
-                text = page.extract_text()
-                pages_text.append(text)
-        json_data = json.dumps(pages_text)
+#     elif file_extension == 'pdf':
+#         with pdfplumber.open(uploaded_file) as pdf:
+#             pages_text = []
+#             for page in pdf.pages:
+#                 text = page.extract_text()
+#                 pages_text.append(text)
+#         json_data = json.dumps(pages_text)
 
-    elif file_extension == 'docx':
-        doc = Document(uploaded_file)
-        doc_text = [para.text for para in doc.paragraphs]
-        json_data = json.dumps(doc_text)
+#     elif file_extension == 'docx':
+#         doc = Document(uploaded_file)
+#         doc_text = [para.text for para in doc.paragraphs]
+#         json_data = json.dumps(doc_text)
 
-    else:
-        # Handle unsupported file types
-        return None
+#     else:
+#         # Handle unsupported file types
+#         return None
 
-    return json_data
+#     return json_data
 
 
-def wordreader(request):
-    doc = Document("static/11 Planner for AHU.docx")
-    tables_data = []
-    # Extract data from each table
-    for table in doc.tables:
-        table_data = []
-        for row in table.rows:
-            row_data = [cell.text for cell in row.cells]
-            table_data.append(row_data)
-        tables_data.append(table_data)
-        print(table_data)
+# def wordreader(request):
+#     doc = Document("static/11 Planner for AHU.docx")
+#     tables_data = []
+#     # Extract data from each table
+#     for table in doc.tables:
+#         table_data = []
+#         for row in table.rows:
+#             row_data = [cell.text for cell in row.cells]
+#             table_data.append(row_data)
+#         tables_data.append(table_data)
+#         print(table_data)
 
     # Extract data from headers
     # for section in doc.sections:
@@ -347,31 +363,31 @@ def wordreader(request):
     
 
     # Pass the extracted data to the template
-    return render(request, 'word.html', {'tables_data': tables_data})
+    # return render(request, 'word.html', {'tables_data': tables_data})
 
-import docx 
+# import docx 
 
-def rulebased(request):
-    # Import docx NOT python-docx 
+# def rulebased(request):
+#     # Import docx NOT python-docx 
 
-# Create an instance of a word document 
-    doc = docx.Document() 
+# # Create an instance of a word document 
+#     doc = docx.Document() 
 
-    # Add a Title to the document 
-    doc.add_heading('GeeksForGeeks', 0) 
+#     # Add a Title to the document 
+#     doc.add_heading('GeeksForGeeks', 0) 
 
-    # Adding a paragraph 
-    doc.add_heading('Page 1:', 3) 
-    doc.add_paragraph('GeeksforGeeks is a Computer Science portal for geeks.') 
+#     # Adding a paragraph 
+#     doc.add_heading('Page 1:', 3) 
+#     doc.add_paragraph('GeeksforGeeks is a Computer Science portal for geeks.') 
 
-    # Adding a page break 
-    doc.add_page_break() 
+#     # Adding a page break 
+#     doc.add_page_break() 
 
-    # Adding a paragraph 
-    doc.add_heading('Page 2:', 3) 
-    doc.add_paragraph('GeeksforGeeks is a Computer Science portal for geeks.') 
+#     # Adding a paragraph 
+#     doc.add_heading('Page 2:', 3) 
+#     doc.add_paragraph('GeeksforGeeks is a Computer Science portal for geeks.') 
 
-    # Now save the document to a location 
-    doc.save('gfg.docx') 
+#     # Now save the document to a location 
+#     doc.save('gfg.docx') 
 
 

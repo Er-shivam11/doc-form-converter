@@ -32,11 +32,11 @@ urlpatterns = [
     path('login/', views.loginuser, name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('select-template', views.selecttemplate, name='selecttemplate'),
-    path('checktype', views.typeform, name='checktype'),
+    path('editform', views.typeform, name='checktype'),
     path('addtemplate/', views.addtemplate, name='addtemplate'),
-    path('wordreader/', views.wordreader, name='wordreader'),
-    path('save-data/', views.display_excel, name='savedata'),
-    path('form_data/', views.form_data, name='formdata'),
+    # path('wordreader/', views.wordreader, name='wordreader'),
+    # path('save-data/', views.display_excel, name='savedata'),
+    path('form_data/', views.editform, name='formdata'),
 
 
     

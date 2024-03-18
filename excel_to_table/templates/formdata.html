@@ -21,22 +21,28 @@
         <!-- header inner -->
         <div  class="head_top">
         {% include "header.html" %}
-    <table>
-        <thead>
-            <tr>
-                <th>Header</th>
-                <th>Content</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in table_data %}
-            
-            <tr>
-                <td>{{ row.header }}</td>
-                <td>{{ row.content }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <h3>Save Form</h3>
+        <button class="btn-primary">SAVE</button>
+
+        <div class="table-responsive table-bordered">
+            <table class="table ">
+            <thead>
+                <tr>
+                    {% for column in df.columns %}
+                        <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, row in df.iterrows %}
+                    <tr>
+                        {% for value in row %}
+                            <td class="editable" onclick="makeEditable(this)" contenteditable="true" oninput="checkInput(this)">{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
 </body>
 </html>
