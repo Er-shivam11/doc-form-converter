@@ -1,7 +1,6 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -232,22 +231,18 @@ body {
                                   <h3 class="text-white p-2">Select Template</h3>
                                 </div>
                                 <div class="card-body ">
-                                    <form method="post" enctype="multipart/form-data" action="{% url 'checktype' %}">
+                                    <form method="post" enctype="multipart/form-data" action="{% url 'selecttemplate' %}">
                                         {% csrf_token %}
                                         <div class="form-group" >
                                             <div class="row">
                                                 <div class="col-6">
-                                                    {{ tform.user_table|as_crispy_field }}
+                                                {{ tform.user_table|as_crispy_field }}
                                                 </div> 
                                                 <div class="col-6">
-                                                    {{ tform.template_master|as_crispy_field }}
+                                                {{ tform.template_master|as_crispy_field }}
                                                 </div>
-
                                                 <div class="col-6">
                                                     {{ tform.expiry_date|as_crispy_field }}
-                                                </div>
-                                                <div class="col-6">
-                                                    {{ tform.form_name|as_crispy_field }}
                                                 </div>
                                                 
                                             </div>

@@ -62,66 +62,11 @@ def addtemplate(request):
         if form.is_valid():
             
             upload_template_instance = form.save()
-            return redirect('selecttemplate')
-
-        else:
-            # Handle form errors - you can print them or log them for debugging
-            print(form.errors)
-
-
-    name=UploadTemplate.objects.all()
-
-    context = {
-        'form': form
-    }
-    return render(request, 'addtemplate.html', context)
-
-def selecttemplate(request):
-    tform=UserPermissionForm
-    if request.method == 'POST':
-        count_form = UserPermissionForm(request.POST, request.FILES)
-        if count_form.is_valid():
-
-            count_form.save()
-            # return redirect('checktype')
-        else:
-            print(count_form.errors)
-    else:
-        count_form = UserPermissionForm()
-    context = {
-        'tform': tform}
-    return render(request, 'selecttemp.html', context)
-
-# def extract_text_from_table(table):
-#     table_data = []
-#     for row in table.rows:
-#         row_data = []
-#         for cell in row.cells:
-#             row_data.append(cell.text)
-#         table_data.append(row_data)
-#     return table_data
-def typeform(request):
-    if request.method == 'POST':
-        form = UserPermissionForm(request.POST, request.FILES)
-        if form.is_valid():
-            upload_template_instance = form.save()
-            template_master = upload_template_instance.template_master.worksheet_file.path
+            template_master = upload_template_instance.worksheet_file.path
             print(template_master)
-            if template_master.endswith('.xlsx'):
-            # Parse the Excel file using Pandas
-                df = pd.read_excel(template_master)
-                df.fillna('', inplace=True)
-                df.columns = ["" if 'Unnamed' in str(col) else col for col in df.columns]
-                columns = df.columns.tolist()
-                df = df[(df.T != '').any()]
-                data = df.values.tolist()
-                return render(request, 'your_template.html', {'form': form, 'columns': columns, 'data': data})
-            elif template_master.endswith('.docx'):
-                t_id = upload_template_instance.template_master.id
+            if template_master.endswith('.docx'):
+                t_id = upload_template_instance.id
                 print(t_id)
-                latest_entry = UserPermission.objects.latest('id')
-                form_name = latest_entry.form_name
-                print(form_name)
                 # Parse the Word document using python-docx
                 doc = Document(template_master)
                 header = doc.sections[0].header
@@ -132,7 +77,7 @@ def typeform(request):
                         row_data = [cell.text for cell in row.cells]
                         unique_values = list(set(row_data))
                         # print(unique_values,'header row')
-                        template_form_instance = TempleData(temp_data=unique_values,template_master_id=t_id,form_data=form_name)
+                        template_form_instance = TempleData(temp_data=unique_values,template_master_id=t_id)
                         template_form_instance.save()
                         header_data.append(unique_values)
                     headers_data.append(header_data)
@@ -166,25 +111,39 @@ def typeform(request):
                             row_data[1]=""
                         # Print the row label
                         # print(f"row{row_counter}", row_data)
-                        template_form_instance = TempleData(temp_data=row_data,template_master_id=t_id,form_data=form_name)
+                        template_form_instance = TempleData(temp_data=row_data,template_master_id=t_id)
                         template_form_instance.save()
                         row_counter += 1
                     tables_data.append(table_data)
-                    # print(tables_data)
+            return redirect('selecttemplate')
 
-                return render(request, 'your_template.html', {'form': form, 'headers_data': headers_data,'columns': columns, 'tables_data': tables_data})
-                
-            else:
-                message = "Unsupported File Content, Unsupported File Structure or format, file is not found"
-                return HttpResponse(f'<div class="error-message">{message}</div>')
+        else:
+            # Handle form errors - you can print them or log them for debugging
+            print(form.errors)
 
+
+    name=UploadTemplate.objects.all()
+
+    context = {
+        'form': form
+    }
+    return render(request, 'addtemplate.html', context)
+
+def selecttemplate(request):
+    tform=UserPermissionForm
+    if request.method == 'POST':
+        count_form = UserPermissionForm(request.POST, request.FILES)
+        if count_form.is_valid():
+
+            count_form.save()
+            return redirect('formuploaded')
+        else:
+            print(count_form.errors)
     else:
-        form = UserPermissionForm()
-
-    return render(request, 'your_template.html', {'form': form})
-
-
-
+        count_form = UserPermissionForm()
+    context = {
+        'tform': tform}
+    return render(request, 'selecttemp.html', context)
 
 def formuploaded(request):
     tform=FormSheet
@@ -192,7 +151,6 @@ def formuploaded(request):
         count_form = FormSheet(request.POST, request.FILES)
         if count_form.is_valid():   
             count_form.save()
-            return redirect('editform')
         else:
             print(count_form.errors)
     else:
@@ -200,32 +158,141 @@ def formuploaded(request):
     context = {
         'tform': tform} 
     return render(request, 'addform.html', context)
+# def typeform(request):
+#     if request.method == 'POST':
+#         form = UserPermissionForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             upload_template_instance = form.save()
+#             template_master = upload_template_instance.template_master.worksheet_file.path
+#             print(template_master)
+#             if template_master.endswith('.xlsx'):
+#             # Parse the Excel file using Pandas
+#                 df = pd.read_excel(template_master)
+#                 df.fillna('', inplace=True)
+#                 df.columns = ["" if 'Unnamed' in str(col) else col for col in df.columns]
+#                 columns = df.columns.tolist()
+#                 df = df[(df.T != '').any()]
+#                 data = df.values.tolist()
+#                 return render(request, 'your_template.html', {'form': form, 'columns': columns, 'data': data})
+#             elif template_master.endswith('.docx'):
+#                 t_id = upload_template_instance.template_master.id
+#                 print(t_id)
+#                 latest_entry = UserPermission.objects.latest('id')
+#                 form_name = latest_entry.form_name
+#                 print(form_name)
+#                 # Parse the Word document using python-docx
+#                 doc = Document(template_master)
+#                 header = doc.sections[0].header
+#                 headers_data = []
+#                 for table in header.tables:
+#                     header_data = []
+#                     for row in table.rows:
+#                         row_data = [cell.text for cell in row.cells]
+#                         unique_values = list(set(row_data))
+#                         # print(unique_values,'header row')
+#                         template_form_instance = TempleData(temp_data=unique_values,template_master_id=t_id,form_data=form_name)
+#                         template_form_instance.save()
+#                         header_data.append(unique_values)
+#                     headers_data.append(header_data)
+#                 tables_data = []
+#                 columns = None
+#                 # Extract data from each table
+#                 for table in doc.tables:
+#                     table_data = []
+#                     unique_values = set()  # Track unique values across top 3 rows
+#                     # Counter for appending "row" labels
+#                     row_counter = 1
+#                     for i, row in enumerate(table.rows):
+#                         row_data = []
+#                         for j, cell in enumerate(row.cells):
+#                             cell_text = cell.text.strip()  # Strip whitespace from cell text
+#                             # Check if it's the header row
+#                             if i < 3:
+#                                 # Check for duplicate values in top 3 rows
+#                                 if cell_text in unique_values:
+#                                     cell_text = ""  # Fill null value if duplicate
+#                                 else:
+#                                     unique_values.add(cell_text)
+#                             row_data.append(cell_text)
+#                         table_data.append(row_data)
+#                         if i == 2 and '20 µ' in row_data and 'G4' in row_data:
+#                             row_data[-1] = 'M6(F6)/F9'
+#                             row_data[-2] = 'G4'
+#                             row_data[-3] = '20 µ'
+#                         if i == 3 and '20 µ' in row_data or 'G4' in row_data:
+#                             row_data[0]=""
+#                             row_data[1]=""
+#                         # Print the row label
+#                         # print(f"row{row_counter}", row_data)
+#                         template_form_instance = TempleData(temp_data=row_data,template_master_id=t_id,form_data=form_name)
+#                         template_form_instance.save()
+#                         row_counter += 1
+#                     tables_data.append(table_data)
+#                     # print(tables_data)
+
+#                 return render(request, 'your_template.html', {'form': form, 'headers_data': headers_data,'columns': columns, 'tables_data': tables_data})
+                
+#             else:
+#                 message = "Unsupported File Content, Unsupported File Structure or format, file is not found"
+#                 return HttpResponse(f'<div class="error-message">{message}</div>')
+
+#     else:
+#         form = UserPermissionForm()
+
+#     return render(request, 'your_template.html', {'form': form})
+
+
 
 def editform(request):
-    # Retrieve the latest template_master_id
-    latest_entry = UserPermission.objects.latest('id')
-    form_name = latest_entry.form_name
-    print(form_name)
-
-    latest_template_master_id = latest_entry.template_master_id
-    # Retrieve FormData objects for the latest template_master_id
-    formdata = TempleData.objects.filter(template_master_id=latest_template_master_id,form_data=form_name)
 
 
-    print(formdata)
-    # Convert FormData objects to DataFrame
-    rows = []
-    for data in formdata:
-        rows.append(eval(data.temp_data))
-    # Create DataFrame
-    df = pd.DataFrame(rows)
-    # Assign headers
-    headers = df.iloc[0]
-    df = df[1:]
-    df.columns = headers
-    print(df)
+    fid = UploadedForm.objects.latest('id')
+    tid = UploadTemplate.objects.latest('id')
+    tempform=TempleData.objects.filter(template_master=tid)
 
-    return render(request, 'formdata.html', {'df': df})
+    tempid=tid.id
+    formid=fid.id
+    print(fid,'fid')
+    print(tid,'tid')
+    print(tempid,'tempid')
+    print(formid,'firmid')
+    # for formdetails in tempform:
+    #     FormData.objects.create(
+    #     step=formdetails.step,
+    #     description=formdetails.description,
+    #     std_value=formdetails.std_value,
+    #     obs_value=formdetails.obs_value,
+    #     start_time=formdetails.start_time,
+    #     end_time=formdetails.end_time,
+    #     creator=formdetails.creator,
+    #     form_name=fid,
+    #     upload_template=tid,
+    #     )
+
+    # # Retrieve the latest template_master_id
+    # latest_entry = UserPermission.objects.latest('id')
+    # form_name = latest_entry.form_name
+    # print(form_name)
+
+    # latest_template_master_id = latest_entry.template_master_id
+    # # Retrieve FormData objects for the latest template_master_id
+    # formdata = TempleData.objects.filter(template_master_id=latest_template_master_id,form_data=form_name)
+
+
+    # print(formdata)
+    # # Convert FormData objects to DataFrame
+    # rows = []
+    # for data in formdata:
+    #     rows.append(eval(data.temp_data))
+    # # Create DataFrame
+    # df = pd.DataFrame(rows)
+    # # Assign headers
+    # headers = df.iloc[0]
+    # df = df[1:]
+    # df.columns = headers
+    # print(df)
+
+    # return render(request, 'formdata.html', {'df': df})
     # df = pd.DataFrame(rows)
     
     # df['form_data'] = df['form_data'].apply(lambda x: x.replace('[', '').replace(']', '').replace(',', ''))
