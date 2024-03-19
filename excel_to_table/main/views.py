@@ -151,6 +151,7 @@ def formuploaded(request):
         count_form = FormSheet(request.POST, request.FILES)
         if count_form.is_valid():   
             count_form.save()
+            return redirect('formdata')
         else:
             print(count_form.errors)
     else:
@@ -244,8 +245,6 @@ def formuploaded(request):
 
 
 def editform(request):
-
-
     fid = UploadedForm.objects.latest('id')
     tid = UploadTemplate.objects.latest('id')
     tempform=TempleData.objects.filter(template_master=tid)
@@ -256,43 +255,32 @@ def editform(request):
     print(tid,'tid')
     print(tempid,'tempid')
     print(formid,'firmid')
-    # for formdetails in tempform:
-    #     FormData.objects.create(
-    #     step=formdetails.step,
-    #     description=formdetails.description,
-    #     std_value=formdetails.std_value,
-    #     obs_value=formdetails.obs_value,
-    #     start_time=formdetails.start_time,
-    #     end_time=formdetails.end_time,
-    #     creator=formdetails.creator,
-    #     form_name=fid,
-    #     upload_template=tid,
-    #     )
+    
 
-    # # Retrieve the latest template_master_id
-    # latest_entry = UserPermission.objects.latest('id')
-    # form_name = latest_entry.form_name
-    # print(form_name)
+    # Retrieve the latest template_master_id
+    latest_entry = UploadedForm.objects.latest('id')
+    form_name = latest_entry.form_name
+    print(form_name)
 
-    # latest_template_master_id = latest_entry.template_master_id
-    # # Retrieve FormData objects for the latest template_master_id
-    # formdata = TempleData.objects.filter(template_master_id=latest_template_master_id,form_data=form_name)
+    # latest_template_master_id = latest_entry.form_name_id
+    # Retrieve FormData objects for the latest template_master_id
+    formdata = TempleData.objects.filter(template_master_id=tempid)
 
 
-    # print(formdata)
-    # # Convert FormData objects to DataFrame
-    # rows = []
-    # for data in formdata:
-    #     rows.append(eval(data.temp_data))
-    # # Create DataFrame
-    # df = pd.DataFrame(rows)
-    # # Assign headers
-    # headers = df.iloc[0]
-    # df = df[1:]
-    # df.columns = headers
-    # print(df)
+    print(formdata)
+    # Convert FormData objects to DataFrame
+    rows = []
+    for data in formdata:
+        rows.append(eval(data.temp_data))
+    # Create DataFrame
+    df = pd.DataFrame(rows)
+    # Assign headers
+    headers = df.iloc[0]
+    df = df[1:]
+    df.columns = headers
+    print(df)
 
-    # return render(request, 'formdata.html', {'df': df})
+    return render(request, 'formdata.html', {'df': df})
     # df = pd.DataFrame(rows)
     
     # df['form_data'] = df['form_data'].apply(lambda x: x.replace('[', '').replace(']', '').replace(',', ''))

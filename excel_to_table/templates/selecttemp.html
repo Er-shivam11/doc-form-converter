@@ -187,7 +187,11 @@ body {
 .banner_main {
     padding: 90px 0 190px 0;
 }
-
+.bg-linear-gradient {
+            background: linear-gradient(to right, #0206e7, #520ed1); /* Adjust colors as needed */
+            color: white; /* Text color */
+            padding: 10px;
+        }
 
 .text-img{
     padding: 3re;
@@ -197,7 +201,7 @@ body {
 }
 </style>
 
-<body>
+<body class="bg-linear-gradient">
     <header>
         <!-- header inner -->
         <div  class="head_top">
@@ -227,10 +231,10 @@ body {
                     <div class="col-md-6">
                         <div class="excel-template">
                             <div class="card text-center">
-                                <div class="card-header bg-primary">
+                                <div class="card-header bg-linear-gradient">
                                   <h3 class="text-white p-2">Select Template</h3>
                                 </div>
-                                <div class="card-body ">
+                                <div class="card-body bg-linear-gradient">
                                     <form method="post" enctype="multipart/form-data" action="{% url 'selecttemplate' %}">
                                         {% csrf_token %}
                                         <div class="form-group" >
