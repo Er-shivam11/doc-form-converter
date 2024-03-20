@@ -34,8 +34,11 @@ urlpatterns = [
     path('select-template', views.selecttemplate, name='selecttemplate'),
     # path('editform', views.typeform, name='checktype'),
     path('addtemplate/', views.addtemplate, name='addtemplate'),
-    # path('wordreader/', views.wordreader, name='wordreader'),
     path('formuploaded/', views.formuploaded, name='formuploaded'),
+    path('updatelc/', views.update, name='updatelc'),
+    path('selectform/', views.selectform, name='selectform'),
+    path('showform/', views.showform, name='showform'),
+    path('approve/', views.user_check, name='approve'),
     path('form_data/', views.editform, name='formdata'),
 
 

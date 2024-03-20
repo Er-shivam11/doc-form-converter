@@ -55,6 +55,17 @@ class TempleData(models.Model):
 class FormData(models.Model):
     form_data=models.TextField(max_length=9999999999999)
     template_master=models.ForeignKey(UploadTemplate,verbose_name='template name', on_delete=models.SET_NULL, null=True)
+    creator=models.CharField(max_length=200,null=True)
+    form_name=models.ForeignKey(UploadedForm,verbose_name='Form', on_delete=models.SET_NULL, null=True)
+
     class Meta:
         db_table='tbl_formdata'
 
+class TempFormRelation(models.Model):
+    user_table = models.ForeignKey(Usertable, verbose_name='User name', on_delete=models.SET_NULL, null=True)
+    upload_template = models.ForeignKey(UploadTemplate, verbose_name='template name', on_delete=models.SET_NULL, null=True)
+    form_details = models.ForeignKey(UploadedForm, verbose_name='form name', on_delete=models.SET_NULL, null=True, blank=True)
+    class Meta:
+        db_table = 'tbl_tempformrelation'
+    def __str__(self) -> str:
+        return self.upload_template

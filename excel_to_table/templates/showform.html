@@ -1,0 +1,68 @@
+{%load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/fontawesome.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    
+    <title>Excel Reader</title>
+    
+
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #ffffff;
+        }
+
+        td.editable {
+            background-color: #eaf4ff; /* Background color for editable cells */
+        }
+    </style>
+    
+</head>
+<body>
+    {% include "header.html" %}
+    <div class="container-fluid bg-white">
+        <h1 class="text-white">Excel Data</h1>
+        <form method="post" enctype="multipart/form-data" action="{% url 'approve' %}">
+          {% csrf_token %}
+          <button class="btn btn-primary m-2" type="submit">Approve</button>
+
+          <div class="table-responsive table-bordered">
+            <table class="table ">
+                <thead>
+                    <tr>
+                        {% for column in df.columns %}
+                            <th>{{ column }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index, row in df.iterrows %}
+                        <tr>
+                            {% for value in row %}
+                                <td class="editable" onclick="makeEditable(this)" contenteditable="true" oninput="checkInput(this)">{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        </form>
+    </div>
+</body>

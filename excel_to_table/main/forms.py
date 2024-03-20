@@ -1,5 +1,5 @@
 from django import forms
-from .models import UserPermission,UploadTemplate,UploadedForm
+from .models import UserPermission,UploadTemplate,UploadedForm,TempFormRelation
 from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 
 
@@ -26,4 +26,7 @@ class FormSheet(forms.ModelForm):
         model = UploadedForm
         fields = "__all__"
 
-        
+class RelationTempForm(forms.ModelForm):
+    class Meta:
+        model = TempFormRelation
+        fields = "__all__"

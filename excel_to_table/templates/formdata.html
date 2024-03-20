@@ -22,27 +22,77 @@
         <div  class="head_top">
         {% include "header.html" %}
         <h3>Save Form</h3>
-        <button class="btn-primary">SAVE</button>
+        <form  id="formEdit" method="POST">
+            {% csrf_token %}
+            <button id="updated_btn" type="button" class="btn btn-outline-info text-center">SUBMIT</button>
+            <a href="{% url 'selectform'  %}" class="btn btn-primary">NEXT</i></a>
 
-        <div class="table-responsive table-bordered">
-            <table class="table ">
-            <thead>
-                <tr>
-                    {% for column in df.columns %}
-                        <th>{{ column }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for index, row in df.iterrows %}
-                    <tr>
-                        {% for value in row %}
-                            <td class="editable" onclick="makeEditable(this)" contenteditable="true" oninput="checkInput(this)">{{ value }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        </div>
+                <div class="table-responsive table-bordered">
+                    <table class="table ">
+                        <thead>
+                            <tr>
+                                {% for column in df.columns %}
+                                    <th>{{ column }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for index, row in df.iterrows %}
+                                <tr>
+                                    {% for value in row %}
+                                        <td class="editable" onclick="makeEditable(this)" contenteditable="true" oninput="checkInput(this)">{{ value }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+        </form>
+        <script src="{% static 'js/xlsx.full.min.js' %}"></script> 
+        <script src="{% static 'js/jquery.min.js' %}"></script>
+        <script src="{% static 'js/bootstrap.js' %}"></script>
+        <script src="{% static 'js/fontawesome.js' %}"></script>
+        <script src="{% static 'js/custom.js' %}"></script>
+        <script>
+            $(document).ready(function(){
+            $("input").on("input", function(){
+              // Display the fixed text with the name "Shivam" when the user types
+              $("#outputParagraph").text("Getting updated by Shivam");
+            });
+          });
+      
+            $(document).ready(function () {
+          $(".level-code").on("input", function () {
+            var inputValue = parseInt($(this).val());
+      
+            if (inputValue < 50) {
+              $(this).css("background-color", "yellow");
+            } else if (inputValue >= 50 && inputValue <= 60) {
+              $(this).css("background-color", "green");
+            } else if (inputValue > 60) {
+              $(this).css("background-color", "red");
+            } else {
+              // Default color if input is not a number
+              $(this).css("background-color", "");
+            }
+          });
+        });
+            $(document).ready(function () {
+                $("#updated_btn").click(function (event) {
+                    event.preventDefault();
+                    $.ajax({
+                        type: "POST",
+                        url: "/updatelc/",
+                        data: $("#formEdit").serialize(),
+                        success: function () {
+                            alert("Form saved");
+                            // $('#message').html("<h2>Contact Form Submitted!</h2>")
+                        }
+                    });
+                    return false;
+                });
+            });
+      
+        </script>
 </body>
 </html>
