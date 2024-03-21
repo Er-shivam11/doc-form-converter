@@ -32,9 +32,9 @@ def loginuser(request):
             if user:
                 auth_login(request, user)
                 if user.is_superuser:
-                    return redirect('upload')  # Superuser, redirect to the 'home' page
+                    return redirect('home')  # Superuser, redirect to the 'home' page
                 else:
-                    return redirect('upload')  
+                    return redirect('home')  
                 
             else:
                 if username == '' or password == '':
